@@ -35,21 +35,148 @@ function preview(){ $('brandPreview').textContent=$('brand').value||'الاسم'
 function selectTemplate(t){current=t;category=t.category;palette=t.palette;$('brand').value=t.brand;$('title').value=t.title;$('desc').value=t.desc;$('footerText').value=t.footer;$('format').value='square';renderCategories();renderTemplates();renderColors();preview()}
 $('categoryTabs').addEventListener('click',e=>{const b=e.target.closest('[data-category]');if(b)selectTemplate(templates.find(t=>t.category===b.dataset.category))});$('templates').addEventListener('click',e=>{const b=e.target.closest('[data-template]');if(b)selectTemplate(templates.find(t=>t.id===b.dataset.template))});
 $('colors').addEventListener('click',e=>{let b=e.target.closest('[data-color]');if(!b)return;palette=Number(b.dataset.color);renderColors();preview()});['brand','title','desc','footerText','format'].forEach(id=>$(id).addEventListener(id==='format'?'change':'input',preview));
-const publicApi=location.hostname.endsWith('github.io')?'https://bostatik.sunlit-bat-3211.chatgpt.site':'';const plans={single:['تصميم واحد','1 د.أ'],month:['اشتراك شهر واحد','5 د.أ'],two:['اشتراك شهرين','7 د.أ']};fetch(publicApi+'/api/prices',{cache:'no-store'}).then(async r=>{if(!r.ok)throw Error();return r.json()}).then(({prices})=>{for(const k of ['single','month','two']){const amount=(prices[k]/1000).toLocaleString('ar-JO',{maximumFractionDigits:3});plans[k][1]=amount+' د.أ';$(k+'Amount').textContent=plans[k][1]}$('download').textContent='احصل على التصميم · '+plans.single[1]}).catch(()=>{document.querySelectorAll('[data-plan],#download').forEach(b=>{b.disabled=true;b.title='تعذر تحميل الأسعار'});$('download').textContent='تعذر تحميل الأسعار · حدّث الصفحة'});fetch(publicApi+'/api/subscriptions',{cache:'no-store'}).then(async r=>{if(!r.ok)throw Error();return r.json()}).then(({subscriptions})=>{const box=$('customPlans');box.innerHTML=subscriptions.map(({months,amountFils})=>{const key='sub:'+months;const name='اشتراك '+months+' أشهر';const amount=(amountFils/1000).toLocaleString('ar-JO',{maximumFractionDigits:3})+' د.أ';plans[key]=[name,amount];return `<article class="plan"><small>باقة إضافية</small><h3>${name}</h3><div class="amount">${amount}</div><p>وصول إلى القوالب لمدة ${months} أشهر بعد التفعيل.</p><button data-plan="${key}">اختر الباقة</button></article>`}).join('')}).catch(()=>{$('planLoadStatus').hidden=false;$('planLoadStatus').textContent='تعذر تحميل الاشتراكات الإضافية. حدّث الصفحة للمحاولة مجددًا.'});let siteUser=null,pendingPlan=null;
-function refreshAccount(){if(siteUser){$('accountOpen').textContent='حسابي · '+siteUser.name;document.querySelector('.auth-tabs').hidden=true;document.querySelectorAll('.auth-form').forEach(f=>f.classList.remove('active'));$('signedInBox').hidden=false;$('signedName').textContent=siteUser.name}else{$('accountOpen').textContent='إنشاء حساب / تسجيل دخول';document.querySelector('.auth-tabs').hidden=false;$('signedInBox').hidden=true;document.querySelectorAll('.auth-form').forEach(f=>f.classList.toggle('active',f.dataset.form==='register'))}}
-fetch('/api/auth',{cache:'no-store'}).then(r=>r.json()).then(d=>{siteUser=d.user||null;refreshAccount()}).catch(()=>{});
-function openPay(k){pendingPlan=k;$('planName').textContent=plans[k][0];$('planPrice').textContent=plans[k][1];if(siteUser){$('checkout').showModal();return}$('pendingPlanName').textContent=plans[k][0];$('pendingPlanPrice').textContent=plans[k][1];$('pendingPurchase').hidden=false;$('accountPrompt').hidden=false;$('authMessage').classList.remove('show');$('account').showModal()}
-$('download').onclick=()=>openPay('single');$('pricing').addEventListener('click',e=>{const b=e.target.closest('[data-plan]');if(b&&plans[b.dataset.plan])openPay(b.dataset.plan)});$('close').onclick=()=>$('checkout').close();$('checkout').onclick=e=>{if(e.target===$('checkout'))$('checkout').close()};
+const publicApi=location.hostname.endsWith('github.io')?'https://bostatik.sunlit-bat-3211.chatgpt.site':'';const plans={single:[this,'تصميم واحد','1 د.أ'],month:['اشتراك شهر واحد','5 د.أ'],two:['اشتراك شهرين','7 د.أ']};
+
+// تعديل جلب الأسعار والاشتراكات مع التحقق من نوع الاستجابة (JSON) تفادياً لأخطاء HTML
+fetch(publicApi+'/api/prices',{cache:'no-store'}).then(async r=>{
+    const ct = r.headers.get("content-type");
+    if(!r.ok || !ct || !ct.includes("application/json")) throw Error();
+    return r.json();
+}).then(({prices})=>{
+    for(const k of ['single','month','two']){
+        const amount=(prices[k]/1000).toLocaleString('ar-JO',{maximumFractionDigits:3});
+        plans[k][1]=amount+' د.أ';
+        $(k+'Amount').textContent=plans[k][1];     }$('download').textContent='احصل على التصميم · '+plans.single[1];
+}).catch(()=>{
+    document.querySelectorAll('[data-plan],#download').forEach(b=>{b.disabled=true;b.title='تعذر تحميل الأسعار'});
+    $('download').textContent='تعذر تحميل الأسعار · حدّث الصفحة';
+});
+
+fetch(publicApi+'/api/subscriptions',{cache:'no-store'}).then(async r=>{
+    const ct = r.headers.get("content-type");
+    if(!r.ok || !ct || !ct.includes("application/json")) throw Error();
+    return r.json();
+}).then(({subscriptions})=>{
+    const box=$('customPlans');
+    box.innerHTML=subscriptions.map(({months,amountFils})=>{
+        const key='sub:'+months;
+        const name='اشتراك '+months+' أشهر';
+        const amount=(amountFils/1000).toLocaleString('ar-JO',{maximumFractionDigits:3})+' د.أ';
+        plans[key]=[name,amount];
+        return `<article class="plan"><small>باقة إضافية</small><h3>${name}</h3><div class="amount">${amount}</div><p>وصول إلى القوالب لمدة ${months} أشهر بعد التفعيل.</p><button data-plan="${key}">اختر الباقة</button></article>`;
+    }).join('');
+}).catch(()=>{
+    $('planLoadStatus').hidden=false;
+    $('planLoadStatus').textContent='تعذر تحميل الاشتراكات الإضافية. حدّث الصفحة للمحاولة مجددًا.';
+});
+
+let siteUser=null,pendingPlan=null;
+function refreshAccount(){
+    if(siteUser){
+        $('accountOpen').textContent='حسابي · '+siteUser.name;
+        document.querySelector('.auth-tabs').hidden=true;
+        document.querySelectorAll('.auth-form').forEach(f=>f.classList.remove('active'));
+        $('signedInBox').hidden=false;
+        $('signedName').textContent=siteUser.name;
+    }else{
+        $('accountOpen').textContent='إنشاء حساب / تسجيل دخول';
+        document.querySelector('.auth-tabs').hidden=false;
+        $('signedInBox').hidden=true;
+        document.querySelectorAll('.auth-form').forEach(f=>f.classList.toggle('active',f.dataset.form==='register'));
+    }
+}
+
+fetch('/api/auth',{cache:'no-store'}).then(async r=>{
+    const ct = r.headers.get("content-type");
+    if(r.ok && ct && ct.includes("application/json")) {
+        return r.json();
+    }
+    return {user: null};
+}).then(d=>{
+    siteUser=d.user||null;
+    refreshAccount();
+}).catch(()=>{});
+
+function openPay(k){
+    pendingPlan=k;
+    $('planName').textContent=plans[k][0];$('planPrice').textContent=plans[k][1];
+    if(siteUser){$('checkout').showModal();return}$('pendingPlanName').textContent=plans[k][0];
+    $('pendingPlanPrice').textContent=plans[k][1];$('pendingPurchase').hidden=false;
+    $('accountPrompt').hidden=false;
+    $('authMessage').classList.remove('show');$('account').showModal();
+}
+
+$('download').onclick=()=>openPay('single');
+$('pricing').addEventListener('click',e=>{const b=e.target.closest('[data-plan]');if(b&&plans[b.dataset.plan])openPay(b.dataset.plan)});$('close').onclick=()=>$('checkout').close();$('checkout').onclick=e=>{if(e.target===$('checkout'))$('checkout').close()};
 $('accountOpen').onclick=()=>{$('pendingPurchase').hidden=true;$('accountPrompt').hidden=true;$('authMessage').classList.remove('show');$('account').showModal()};$('authClose').onclick=()=>$('account').close();$('account').onclick=e=>{if(e.target===$('account'))$('account').close()};
-document.querySelectorAll('[data-auth]').forEach(b=>b.addEventListener('click',()=>{let target=b.dataset.auth;document.querySelectorAll('.auth-tabs button').forEach(x=>x.classList.toggle('active',x.dataset.auth===target));document.querySelectorAll('.auth-form').forEach(x=>x.classList.toggle('active',x.dataset.form===target));$('authMessage').classList.remove('show')}));
-async function submitAuth(form,body){const button=form.querySelector('button[type=submit]');button.disabled=true;$('authMessage').classList.remove('show');try{const r=await fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});const d=await r.json();if(!r.ok)throw Error(d.error||'تعذرت العملية');if(body.action==='reset'){$('recoveryDisplay').textContent=d.recoveryCode;$('recoveryBox').hidden=false;form.hidden=true;$('authMessage').textContent='تم تغيير كلمة المرور. احفظ رمز الاسترداد الجديد.';$('authMessage').classList.add('show');return}siteUser=d.user;refreshAccount();form.reset();if(d.recoveryCode){$('recoveryDisplay').textContent=d.recoveryCode;$('recoveryBox').hidden=false;$('signedInBox').hidden=true}else{finishAccount()}}catch(e){$('authMessage').textContent=e.message||'تعذرت العملية';$('authMessage').classList.add('show')}finally{button.disabled=false}}
-$('registerForm').addEventListener('submit',e=>{e.preventDefault();submitAuth(e.currentTarget,{action:'register',name:$('regName').value,email:$('regEmail').value,password:$('regPassword').value,pin:$('regPin').value})});
-$('loginForm').addEventListener('submit',e=>{e.preventDefault();submitAuth(e.currentTarget,{action:'login',email:$('loginEmail').value,password:$('loginPassword').value,pin:$('loginPin').value})});
-$('forgotForm').addEventListener('submit',e=>{e.preventDefault();submitAuth(e.currentTarget,{action:'reset',email:$('forgotEmail').value,pin:$('forgotPin').value,recoveryCode:$('recoveryInput').value,newPassword:$('newPassword').value})});
+
+document.querySelectorAll('[data-auth]').forEach(b=>b.addEventListener('click',()=>{
+    let target=b.dataset.auth;
+    document.querySelectorAll('.auth-tabs button').forEach(x=>x.classList.toggle('active',x.dataset.auth===target));
+    document.querySelectorAll('.auth-form').forEach(x=>x.classList.toggle('active',x.dataset.form===target));
+    $('authMessage').classList.remove('show');
+}));
+
+async function submitAuth(form,body){
+    const button=form.querySelector('button[type=submit]');
+    button.disabled=true;
+    $('authMessage').classList.remove('show');
+    try{
+        const r=await fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+        
+        // التحقق من أن الاستجابة JSON صالحة وليست صفحة HTML للخطأ
+        const contentType = r.headers.get("content-type");
+        if(!contentType || !contentType.includes("application/json")){
+            throw Error('استجابة الخادم غير صالحة (تأكد من تشغيل مسارات الـ API بشكل صحيح)');
+        }
+
+        const d=await r.json();
+        if(!r.ok) throw Error(d.error||'تعذرت العملية');
+        
+        if(body.action==='reset'){
+            $('recoveryDisplay').textContent=d.recoveryCode;
+            $('recoveryBox').hidden=false;
+            form.hidden=true;
+            $('authMessage').textContent='تم تغيير كلمة المرور. احفظ رمز الاسترداد الجديد.';
+            $('authMessage').classList.add('show');
+            return;
+        }
+        siteUser=d.user;
+        refreshAccount();
+        form.reset();
+        if(d.recoveryCode){
+            $('recoveryDisplay').textContent=d.recoveryCode;
+            $('recoveryBox').hidden=false;
+            $('signedInBox').hidden=true;
+        }else{
+            finishAccount();
+        }
+    }catch(e){
+        $('authMessage').textContent=e.message||'تعذرت العملية';
+        $('authMessage').classList.add('show');
+    }finally{
+        button.disabled=false;
+    }
+}
+
+$('registerForm').addEventListener('submit',e=>{e.preventDefault();submitAuth(e.currentTarget,{action:'register',name:$('regName').value,email:$('regEmail').value,password:$('regPassword').value,pin:$('regPin').value})});$('loginForm').addEventListener('submit',e=>{e.preventDefault();submitAuth(e.currentTarget,{action:'login',email:$('loginEmail').value,password:$('loginPassword').value,pin:$('loginPin').value})});$('forgotForm').addEventListener('submit',e=>{e.preventDefault();submitAuth(e.currentTarget,{action:'reset',email:$('forgotEmail').value,pin:$('forgotPin').value,recoveryCode:$('recoveryInput').value,newPassword:$('newPassword').value})});
+
 function finishAccount(){$('account').close();if(pendingPlan)$('checkout').showModal()}
-$('continueAccount').onclick=()=>{$('recoveryBox').hidden=true;$('forgotForm').hidden=false;finishAccount()};$('copyRecovery').onclick=()=>navigator.clipboard.writeText($('recoveryDisplay').textContent);
-$('logout').onclick=async()=>{await fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'logout'})});siteUser=null;$('recoveryBox').hidden=true;refreshAccount();$('account').close()};
-const params=new URLSearchParams(location.search);if(params.get('account')){const target=params.get('account');$('account').showModal();document.querySelector(`[data-auth="${['register','login','forgot'].includes(target)?target:'login'}"]`).click()}
-$('year').textContent=new Date().getFullYear();selectTemplate(current);
+$('continueAccount').onclick=()=>{$('recoveryBox').hidden=true;$('forgotForm').hidden=false;finishAccount()};$('copyRecovery').onclick=()=>navigator.clipboard.writeText($('recoveryDisplay').textContent);$('logout').onclick=async()=>{
+    await fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'logout'})});
+    siteUser=null;
+    $('recoveryBox').hidden=true;
+    refreshAccount();
+    $('account').close();
+};
+
+const params=new URLSearchParams(location.search);
+if(params.get('account')){
+    const target=params.get('account');
+    $('account').showModal();
+    document.querySelector(`[data-auth="${['register','login','forgot'].includes(target)?target:'login'}"]`).click();
+}
+$('year').textContent=new Date().getFullYear();
+selectTemplate(current);
 </script>
 </body></html>
