@@ -23,7 +23,7 @@
 <form class="auth-form" id="forgotForm" data-form="forgot"><p>أدخل بريدك الإلكتروني لطلب رابط إعادة تعيين كلمة المرور. استخدم رمز التحقق ورمز الاسترداد الذي حفظته عند إنشاء الحساب. رمز التحقق وحده لا يكفي لإعادة تعيين كلمة المرور.</p><label for="forgotEmail">البريد الإلكتروني</label><input id="forgotEmail" type="email" autocomplete="email" required><label for="forgotPin">رمز التحقق · 4 أرقام</label><input id="forgotPin" type="password" inputmode="numeric" autocomplete="off" pattern="[0-9]{4}" minlength="4" maxlength="4" required><label for="recoveryInput">رمز الاسترداد</label><input id="recoveryInput" autocomplete="off" required minlength="32" maxlength="32" placeholder="الرمز الذي ظهر عند التسجيل"><label for="newPassword">كلمة المرور الجديدة</label><input id="newPassword" type="password" autocomplete="new-password" required minlength="12"><button class="primary full" type="submit">إعادة تعيين كلمة المرور</button></form><div id="signedInBox" hidden><p>أهلًا <strong id="signedName"></strong>، حسابك جاهز.</p><button type="button" class="link-button" id="logout">تسجيل الخروج</button></div><div id="recoveryBox" hidden><strong>احتفظ برمز الاسترداد الآن</strong><p>لن نعرضه مرة ثانية. ستحتاجه مع رمزك المكوّن من 4 أرقام إذا نسيت كلمة المرور.</p><code id="recoveryDisplay"></code><button type="button" class="link-button" id="copyRecovery">نسخ الرمز</button><button type="button" class="primary full" id="continueAccount">حفظت الرمز، متابعة</button></div><div class="auth-message" id="authMessage" role="status"></div></div></dialog>
 <dialog id="checkout" aria-labelledby="checkoutTitle"><div class="modal"><div class="modal-head"><h2 id="checkoutTitle">إتمام الطلب</h2><button class="close" id="close" aria-label="إغلاق">×</button></div><div class="chosen"><span id="planName">تصميم واحد</span><strong id="planPrice">1 د.أ</strong></div><p>اختر طريقة الدفع المناسبة لك:</p><label class="pay-option"><input type="radio" name="payment" checked> بطاقة فيزا / ماستركارد</label><label class="pay-option"><input type="radio" name="payment"> PayPal</label><div class="notice" role="status">الدفع الإلكتروني قيد التفعيل. لا تدخل بيانات بطاقتك هنا؛ سيظهر زر إتمام الدفع بعد ربط حساب التاجر والتحقق من عملية الشراء.</div><button class="primary full disabled" disabled>الدفع غير متاح حاليًا</button></div></dialog>
 <script>
-const categoryInfo={wedding:{label:'دعوات عرس',brand:'العروس والعريس',desc:'بكل حب ندعوكم لمشاركتنا فرحة زفافنا.\nالجمعة · الساعة 7 مساءً',footer:'وجودكم يُكمل فرحتنا',kickers:['دعوة زفاف','يومنا المنتظر','بكل محبة','فرحة العمر'],names:['ليلة العمر','ورد وذهب','عهد المحبة','دعوة ملكية','ليلة الياسمين','أناقة بيضاء','نجوم المساء','حروف الحب','قمر وفرح','زفاف كلاسيكي','تفاصيل ذهبية','ليلة الورد','فرحتنا تجمعنا','زفاف عصري','لمسة لؤلؤ','سماء بنفسجية','دعوة راقية','أحلام وردية','نور اللقاء','البداية الجميلة'],titles:['يسعدنا حضوركم','نحتفل بحبنا','العروس والعريس','موعدنا مع الفرح','يومنا أجمل بكم'],palettes:[['#5d304e','#b5748a'],['#ad7251','#e8bb83'],['#233c55','#748ba0'],['#513963','#a17db0'],['#7a4448','#d7998b'],['#785b36','#cba65d'],['#244c52','#69a49b'],['#412a5c','#8b70ac'],['#6c3f54','#dc97ac'],['#1e3656','#788cae']]},graduation:{label:'حفلات تخرج',brand:'الخريج / الخريجة',desc:'تشرفنا مشاركتكم حفل تخرجنا.\nالتاريخ: أضف التاريخ · الساعة: أضف الوقت',footer:'بدعواتكم تكتمل فرحتنا',kickers:['دعوة تخرج','ثمرة سنوات','فرحة الإنجاز','يوم التميز'],names:['قبعة النجاح','لحظة التخرج','خطوة للمستقبل','حصاد السنين','بداية جديدة','الإنجاز الذهبي','يوم الفخر','مشوار ونجاح','دفعة الأحلام','ليلة الخريجين','قصة نجاح','تخرج أنيق','الحلم تحقق','سطور الامتنان','إلى القمة','فرحة عائلتي','مشوار علم','تخرج عصري','تحت النجوم','عام الإنجاز'],titles:['تخرجتُ بحمد الله','يسعدني حضوركم','ثمرة سنوات من الجهد','اليوم أحتفل بإنجازي','موعدنا مع النجاح'],palettes:[['#192e59','#c29a50'],['#233b65','#6196bf'],['#412e6c','#9b82d0'],['#1d555d','#5eada7'],['#673c4f','#ce8eab'],['#4c3834','#be9565'],['#152d48','#5a718d'],['#5c3d83','#b484bd'],['#154c6a','#79b4c5'],['#594064','#bd99be']]},general:{label:'تصاميم عامة',brand:'اسم مشروعك',desc:'اكتب هنا تفاصيل رسالتك أو عرضك بطريقة واضحة وجذابة.',footer:'تابعونا للمزيد',kickers:['إعلان جديد','تفاصيل تهمك','شاركنا فرحتك','لفترة محدودة'],names:['عرض الموسم','تهنئة جميلة','منتج جديد','إعلان بسيط','خصم خاص','افتتاح قريب','خبر سار','قصة اليوم','موعد مهم','شكر وتقدير','حدث قادم','نصيحة سريعة','خدمة جديدة','عرض نهاية الأسبوع','دعوة عامة','تحديث مهم','اقتباس اليوم','فرصة مميزة','رسالة قصيرة','تصميم مفتوح'],titles:['عرض يستحق الانتباه','كل عام وأنتم بخير','الجديد وصل','تفاصيل أكثر قريبًا','شاركنا هذه اللحظة'],palettes:[['#f7a265','#e46378'],['#402960','#9876c8'],['#14294d','#238b9a'],['#e85e95','#7246c0'],['#256a88','#34b6a8'],['#e36a4b','#f4b069'],['#275d59','#7bbd91'],['#3d4a83','#8b94d2'],['#853e69','#d38bb5'],['#3b5b70','#88b0bf']]}};
+const categoryInfo={wedding:{label:'دعوات عرس',brand:'العروس والعريس',desc:'بكل حب ندعوكم لمشاركتنا فرحة زفافنا.\nالجمعة · الساعة 7 مساءً',footer:'وجودكم يُكمل فرحتنا',kickers:['دعوة زفاف','يومنا المنتظر','بكل محبة','فرحة العمر'],names:['ليلة العمر','ورد وذهب','عهد المحبة','دعوة ملكية','ليلة الياسمين','أناقة بيضاء','نجوم المساء','حروف الحب','قمر وفرح','زفاف كلاسيكي','تفاصيل ذهبية','ليلة الورد','فرحتنا تجمعنا','زفاف عصري','لمسة لؤلؤ','سماء بنفسجية','دعوة راقية','أحلام وردية','نور اللقاء','البداية الجميله'],titles:['يسعدنا حضوركم','نحتفل بحبنا','العروس والعريس','موعدنا مع الفرح','يومنا أجمل بكم'],palettes:[['#5d304e','#b5748a'],['#ad7251','#e8bb83'],['#233c55','#748ba0'],['#513963','#a17db0'],['#7a4448','#d7998b'],['#785b36','#cba65d'],['#244c52','#69a49b'],['#412a5c','#8b70ac'],['#6c3f54','#dc97ac'],['#1e3656','#788cae']]},graduation:{label:'حفلات تخرج',brand:'الخريج / الخريجة',desc:'تشرفنا مشاركتكم حفل تخرجنا.\nالتاريخ: أضف التاريخ · الساعة: أضف الوقت',footer:'بدعواتكم تكتمل فرحتنا',kickers:['دعوة تخرج','ثمرة سنوات','فرحة الإنجاز','يوم التميز'],names:['قبعة النجاح','لحظة التخرج','خطوة للمستقبل','حصاد السنين','بداية جديدة','الإنجاز الذهبي','يوم الفخر','مشوار ونجاح','دفعة الأحلام','ليلة الخريجين','قصة نجاح','تخرج أنيق','الحلم تحقق','سطور الامتنان','إلى القمة','فرحة عائلتي','مشوار علم','تخرج عصري','تحت النجوم','عام الإنجاز'],titles:['تخرجتُ بحمد الله','يسعدني حضوركم','ثمرة سنوات من الجهد','اليوم أحتفل بإنجازي','موعدنا مع النجاح'],palettes:[['#192e59','#c29a50'],['#233b65','#6196bf'],['#412e6c','#9b82d0'],['#1d555d','#5eada7'],['#673c4f','#ce8eab'],['#4c3834','#be9565'],['#152d48','#5a718d'],['#5c3d83','#b484bd'],['#154c6a','#79b4c5'],['#594064','#bd99be']]},general:{label:'تصاميم عامة',brand:'اسم مشروعك',desc:'اكتب هنا تفاصيل رسالتك أو عرضك بطريقة واضحة وجذابة.',footer:'تابعونا للمزيد',kickers:['إعلان جديد','تفاصيل تهمك','شاركنا فرحتك','لفترة محدودة'],names:['عرض الموسم','تهنئة جميلة','منتج جديد','إعلان بسيط','خصم خاص','افتتاح قريب','خبر سار','قصة اليوم','موعد مهم','شكر وتقدير','حدث قادم','نصيحة سريعة','خدمة جديدة','عرض نهاية الأسبوع','دعوة عامة','تحديث مهم','اقتباس اليوم','فرصة مميزة','رسالة قصيرة','تصميم مفتوح'],titles:['عرض يستحق الانتباه','كل عام وأنتم بخير','الجديد وصل','تفاصيل أكثر قريبًا','شاركنا هذه اللحظة'],palettes:[['#f7a265','#e46378'],['#402960','#9876c8'],['#14294d','#238b9a'],['#e85e95','#7246c0'],['#256a88','#34b6a8'],['#e36a4b','#f4b069'],['#275d59','#7bbd91'],['#3d4a83','#8b94d2'],['#853e69','#d38bb5'],['#3b5b70','#88b0bf']]}};
 const templates=Object.entries(categoryInfo).flatMap(([category,d])=>d.names.map((name,i)=>({id:category+'-'+(i+1),category,name,mini:name,kicker:d.kickers[i%4],title:d.titles[i%5],desc:d.desc,footer:d.footer,brand:d.brand,palette:i%10,layout:(i%5)+1})));
 let category='wedding',current=templates[0],palette=current.palette;
 function activePalettes(){return categoryInfo[current.category].palettes}
@@ -36,138 +36,180 @@ function selectTemplate(t){current=t;category=t.category;palette=t.palette;$('br
 $('categoryTabs').addEventListener('click',e=>{const b=e.target.closest('[data-category]');if(b)selectTemplate(templates.find(t=>t.category===b.dataset.category))});$('templates').addEventListener('click',e=>{const b=e.target.closest('[data-template]');if(b)selectTemplate(templates.find(t=>t.id===b.dataset.template))});
 $('colors').addEventListener('click',e=>{let b=e.target.closest('[data-color]');if(!b)return;palette=Number(b.dataset.color);renderColors();preview()});['brand','title','desc','footerText','format'].forEach(id=>$(id).addEventListener(id==='format'?'change':'input',preview));
 
-// الأسعار المحلية
 const plans={single:['تصميم واحد','1 د.أ'],month:['اشتراك شهر واحد','5 د.أ'],two:['اشتراك شهرين','7 د.أ']};
-$('singleAmount').textContent = plans.single[1];$('monthAmount').textContent = plans.month[1];
-$('twoAmount').textContent = plans.two[1];$('download').textContent = 'احصل على التصميم · ' + plans.single[1];
+$('singleAmount').textContent=plans.single[1];$('monthAmount').textContent=plans.month[1];
+$('twoAmount').textContent=plans.two[1];$('download').textContent='احصل على التصميم · '+plans.single[1];
 
-let siteUser = JSON.parse(localStorage.getItem('siteUser')) || null;
+// قاعدة بيانات محلية تحفظ حتى 1000 حساب
+let currentSessionUser = JSON.parse(localStorage.getItem('currentSessionUser')) || null;
 let pendingPlan = null;
 
+function getDatabaseAccounts() {
+  try {
+    return JSON.parse(localStorage.getItem('db_accounts')) || [];
+  } catch(e) {
+    return [];
+  }
+}
+
+function saveDatabaseAccounts(accounts) {
+  // الحد الأقصى 1000 حساب لضمان عدم تجاوز سعة التخزين
+  if (accounts.length > 1000) {
+    accounts = accounts.slice(accounts.length - 1000);
+  }
+  localStorage.setItem('db_accounts', JSON.stringify(accounts));
+}
+
 function refreshAccount(){
-  if(siteUser){
-    $('accountOpen').textContent = 'حسابي · ' + siteUser.name;
-    document.querySelector('.auth-tabs').hidden = true;
-    document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
-    $('signedInBox').hidden = false;
-    $('signedName').textContent = siteUser.name;
-  } else {
-    $('accountOpen').textContent = 'إنشاء حساب / تسجيل دخول';
-    document.querySelector('.auth-tabs').hidden = false;
-    $('signedInBox').hidden = true;
-    document.querySelectorAll('.auth-form').forEach(f => f.classList.toggle('active', f.dataset.form === 'register'));
+  if(currentSessionUser){
+    $('accountOpen').textContent='حسابي · '+currentSessionUser.name;
+    document.querySelector('.auth-tabs').hidden=true;
+    document.querySelectorAll('.auth-form').forEach(f=>f.classList.remove('active'));
+    $('signedInBox').hidden=false;
+    $('signedName').textContent=currentSessionUser.name;
+  }else{
+    $('accountOpen').textContent='إنشاء حساب / تسجيل دخول';
+    document.querySelector('.auth-tabs').hidden=false;
+    $('signedInBox').hidden=true;
+    document.querySelectorAll('.auth-form').forEach(f=>f.classList.toggle('active',f.dataset.form==='register'));
   }
 }
 refreshAccount();
 
 function openPay(k){
-  pendingPlan = k;
-  $('planName').textContent = plans[k][0];$('planPrice').textContent = plans[k][1];
-  if(siteUser){
+  pendingPlan=k;
+  $('planName').textContent=plans[k][0];$('planPrice').textContent=plans[k][1];
+  if(currentSessionUser){
     $('checkout').showModal();
     return;
   }
-  $('pendingPlanName').textContent = plans[k][0];
-  $('pendingPlanPrice').textContent = plans[k][1];$('pendingPurchase').hidden = false;
-  $('accountPrompt').hidden = false;
+  $('pendingPlanName').textContent=plans[k][0];
+  $('pendingPlanPrice').textContent=plans[k][1];$('pendingPurchase').hidden=false;
+  $('accountPrompt').hidden=false;
   $('authMessage').classList.remove('show');$('account').showModal();
 }
 
-$('download').onclick = () => openPay('single');
-document.querySelectorAll('[data-plan]').forEach(b => b.onclick = () => openPay(b.dataset.plan));
-$('close').onclick = () => $('checkout').close();$('checkout').onclick = e => { if(e.target === $('checkout'))$('checkout').close(); };
+$('download').onclick=()=>openPay('single');
+document.querySelectorAll('[data-plan]').forEach(b=>b.onclick=()=>openPay(b.dataset.plan));
+$('close').onclick=()=>$('checkout').close();$('checkout').onclick=e=>{if(e.target===$('checkout'))$('checkout').close()};
 
-$('accountOpen').onclick = () => {$('pendingPurchase').hidden = true;
-  $('accountPrompt').hidden = true;
-  $('authMessage').classList.remove('show');$('account').showModal();
-};
-$('authClose').onclick = () => $('account').close();$('account').onclick = e => { if(e.target === $('account'))$('account').close(); };
+$('accountOpen').onclick=()=>{$('pendingPurchase').hidden=true;$('accountPrompt').hidden=true;$('authMessage').classList.remove('show');$('account').showModal()};$('authClose').onclick=()=>$('account').close();$('account').onclick=e=>{if(e.target===$('account'))$('account').close()};
 
-document.querySelectorAll('[data-auth]').forEach(b => b.addEventListener('click', () => {
-  let target = b.dataset.auth;
-  document.querySelectorAll('.auth-tabs button').forEach(x => x.classList.toggle('active', x.dataset.auth === target));
-  document.querySelectorAll('.auth-form').forEach(x => x.classList.toggle('active', x.dataset.form === target));
+document.querySelectorAll('[data-auth]').forEach(b=>b.addEventListener('click',()=>{
+  let target=b.dataset.auth;
+  document.querySelectorAll('.auth-tabs button').forEach(x=>x.classList.toggle('active',x.dataset.auth===target));
+  document.querySelectorAll('.auth-form').forEach(x=>x.classList.toggle('active',x.dataset.form===target));
   $('authMessage').classList.remove('show');
 }));
 
-async function submitAuth(form, body){
-  const button = form.querySelector('button[type=submit]');
-  button.disabled = true;
+async function submitAuth(form,body){
+  const button=form.querySelector('button[type=submit]');
+  button.disabled=true;
   $('authMessage').classList.remove('show');
   
   try {
-    if(body.action === 'register'){
-      siteUser = { name: body.name, email: body.email, pin: body.pin };
-      localStorage.setItem('siteUser', JSON.stringify(siteUser));
+    let accounts = getDatabaseAccounts();
+
+    if(body.action==='register'){
+      // التحقق مما إذا كان البريد مسجلاً مسبقاً
+      const exists = accounts.find(acc => acc.email === body.email);
+      if(exists) {
+        throw new Error('البريد الإلكتروني مستخدم بالفعل. جرب تسجيل الدخول.');
+      }
+      
+      if(accounts.length >= 1000) {
+        throw new Error('عذراً، تم الوصول إلى الحد الأقصى للقاعدة (1000 حساب).');
+      }
+
+      const newUser = {
+        name: body.name,
+        email: body.email,
+        password: body.password,
+        pin: body.pin
+      };
+
+      accounts.push(newUser);
+      saveDatabaseAccounts(accounts);
+
+      currentSessionUser = newUser;
+      localStorage.setItem('currentSessionUser', JSON.stringify(currentSessionUser));
+
       const recoveryCode = 'REC-' + Math.random().toString(36).substring(2, 10).toUpperCase();
       $('recoveryDisplay').textContent = recoveryCode;
       $('recoveryBox').hidden = false;
       $('signedInBox').hidden = true;
       refreshAccount();
-    } else if(body.action === 'login'){
-      const savedUser = JSON.parse(localStorage.getItem('siteUser'));
-      if(!savedUser || savedUser.email !== body.email){
-        throw new Error('البريد الإلكتروني غير مسجل أو غير صحيح.');
+
+    } else if(body.action==='login'){
+      const user = accounts.find(acc => acc.email === body.email && acc.password === body.password && acc.pin === body.pin);
+      if(!user){
+        throw new Error('البريد الإلكتروني أو كلمة المرور أو رمز التحقق غير صحيحة.');
       }
-      siteUser = savedUser;
+      currentSessionUser = user;
+      localStorage.setItem('currentSessionUser', JSON.stringify(currentSessionUser));
       refreshAccount();
       finishAccount();
-    } else if(body.action === 'reset'){
-      $('authMessage').textContent = 'تم تغيير كلمة المرور بنجاح.';
+
+    } else if(body.action==='reset'){
+      const userIndex = accounts.findIndex(acc => acc.email === body.email && acc.pin === body.pin);
+      if(userIndex === -1){
+        throw new Error('بيانات الاسترداد غير مطابقة (البريد أو رمز التحقق خاطئ).');
+      }
+      accounts[userIndex].password = body.newPassword;
+      saveDatabaseAccounts(accounts);
+      
+      $('authMessage').textContent = 'تم تغيير كلمة المرور بنجاح. يمكنك تسجيل الدخول الآن.';
       $('authMessage').classList.add('show');
       return;
     }
-  } catch(e){
-    $('authMessage').textContent = e.message || 'تعذرت العملية';
+  }catch(e){
+    $('authMessage').textContent=e.message||'تعذرت العملية';
     $('authMessage').classList.add('show');
-  } finally {
-    button.disabled = false;
+  }finally{
+    button.disabled=false;
   }
 }
 
-$('registerForm').addEventListener('submit', e => {
+$('registerForm').addEventListener('submit',e=>{
   e.preventDefault();
-  submitAuth(e.currentTarget, {action:'register', name:$('regName').value, email:$('regEmail').value, password:$('regPassword').value, pin:$('regPin').value});
+  submitAuth(e.currentTarget,{action:'register',name:$('regName').value,email:$('regEmail').value,password:$('regPassword').value,pin:$('regPin').value});
 });
 
-$('loginForm').addEventListener('submit', e => {
+$('loginForm').addEventListener('submit',e=>{
   e.preventDefault();
-  submitAuth(e.currentTarget, {action:'login', email:$('loginEmail').value, password:$('loginPassword').value, pin:$('loginPin').value});
+  submitAuth(e.currentTarget,{action:'login',email:$('loginEmail').value,password:$('loginPassword').value,pin:$('loginPin').value});
 });
 
-$('forgotForm').addEventListener('submit', e => {
+$('forgotForm').addEventListener('submit',e=>{
   e.preventDefault();
-  submitAuth(e.currentTarget, {action:'reset', email:$('forgotEmail').value, pin:$('forgotPin').value, recoveryCode:$('recoveryInput').value, newPassword:$('newPassword').value});
+  submitAuth(e.currentTarget,{action:'reset',email:$('forgotEmail').value,pin:$('forgotPin').value,recoveryCode:$('recoveryInput').value,newPassword:$('newPassword').value});
 });
 
 function finishAccount(){
   $('account').close();
-  if(pendingPlan) $('checkout').showModal();
+  if(pendingPlan)$('checkout').showModal();
 }
 
-$('continueAccount').onclick = () => {$('recoveryBox').hidden = true;
-  $('forgotForm').hidden = false;
-  finishAccount();
-};
+$('continueAccount').onclick=()=>{$('recoveryBox').hidden=true;$('forgotForm').hidden=false;finishAccount()};
+$('copyRecovery').onclick=()=>navigator.clipboard.writeText($('recoveryDisplay').textContent);
 
-$('copyRecovery').onclick = () => navigator.clipboard.writeText($('recoveryDisplay').textContent);
-
-$('logout').onclick = async () => {
-  siteUser = null;
-  localStorage.removeItem('siteUser');
-  $('recoveryBox').hidden = true;
+$('logout').onclick=async()=>{
+  currentSessionUser=null;
+  localStorage.removeItem('currentSessionUser');
+  $('recoveryBox').hidden=true;
   refreshAccount();
   $('account').close();
 };
 
-const params = new URLSearchParams(location.search);
+const params=new URLSearchParams(location.search);
 if(params.get('account')){
-  const target = params.get('account');
+  const target=params.get('account');
   $('account').showModal();
   document.querySelector(`[data-auth="${['register','login','forgot'].includes(target)?target:'login'}"]`).click();
 }
 
-$('year').textContent = new Date().getFullYear();
+$('year').textContent=new Date().getFullYear();
 selectTemplate(current);
 </script>
-</body></html>
+</body>
+</html>
